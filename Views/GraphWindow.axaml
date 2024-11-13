@@ -44,7 +44,6 @@
                 Click="btnClick">
                 Connect
             </Button>
-            <TextBlock Name="txt" Text="Some text" />
         </StackPanel>
         <lvc:CartesianChart
             Name="chart"

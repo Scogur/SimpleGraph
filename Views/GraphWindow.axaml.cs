@@ -14,6 +14,10 @@ using LiveChartsCore.SkiaSharpView.Painting;
 using SkiaSharp;
 using LiveChartsCore.ConditionalDraw;
 using System.Collections.Generic;
+using Avalonia.VisualTree;
+using Avalonia.Styling;
+using Avalonia.Media;
+using Avalonia;
 
 namespace SimpleGraph.Views;
 
@@ -31,6 +35,7 @@ public partial class GraphWindow : Window
         InitializeComponent();
         ask.CollectionChanged += Ask_CollectionChanged;
         chart.AnimationsSpeed = TimeSpan.FromMilliseconds(0.1);
+
     }
 
     public async void LoadData(int ticks, string c1)
@@ -80,7 +85,7 @@ public partial class GraphWindow : Window
         }
         catch (Exception ex)
         {
-            txt.Text += ex.Message;
+            
         }
     }
 
@@ -88,26 +93,28 @@ public partial class GraphWindow : Window
     {
         timer.Stop();
         client.CloseAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None).Wait();
-        txt.Text += "Disconnected\n";
-        txt.Text += client.State.ToString() + "\n";
     }
 
 
     public void btnClick(object source, RoutedEventArgs args)
     {
-        txt.Text = client.State.ToString();
         conBut.Content = "Disconnect";
         if (client.State == WebSocketState.Open)
         {
             StopConnection();
-            if (client.State == WebSocketState.Closed) conBut.Content = "Connect";
+            if (client.State == WebSocketState.Closed) {
+                conBut.Content = "Connect";
+
+            }
         }
         else if (client.State == WebSocketState.Closed || client.State == WebSocketState.None)
         {
-            txt.Text += "Connecting\n";
             ticksMax = int.Parse(tickMax.Text!);
             LoadData(int.Parse(tickBox.Text!), cur1.Text!);
-            if (client.State == WebSocketState.Open) conBut.Content = "Disconnect";
+            
+            if (client.State == WebSocketState.Open) {
+                conBut.Content = "Disconnect";
+                }
         }
     }
 
@@ -125,10 +132,10 @@ public partial class GraphWindow : Window
                             Values = ask,
                             //new ObservableCollection<double>(ask.Concat([(double)e.NewItems![0]!])),
                             Fill = null,
-                            Stroke = new SolidColorPaint(SKColors.DarkCyan),
+                            Stroke = new SolidColorPaint(SKColors.Fuchsia),
                             LineSmoothness = 0,
                             Name = "Ask",
-                    }.OnPointMeasured(point => point.Visual.Fill = new SolidColorPaint(SKColors.DarkCyan)),
+                    }.OnPointMeasured(point => point.Visual.Fill = new SolidColorPaint(SKColors.Fuchsia)),
 
                         new LineSeries<double>
                         {
@@ -139,13 +146,6 @@ public partial class GraphWindow : Window
                             Name = "Bid",
                         }.OnPointMeasured(point => point.Visual.Fill = new SolidColorPaint(SKColors.Yellow))
                     };
-
-                    /*chart.XAxes = new List<Axis>
-                    {
-                        new() {
-                            Labels = time,
-                        }
-                    };*/
 
                 }
                 break;
