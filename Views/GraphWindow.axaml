@@ -1,0 +1,65 @@
+<Window
+    x:Class="SimpleGraph.Views.GraphWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:SimpleGraph.ViewModels"
+    xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:SimpleGraph.ViewModels"
+    Title="SimpleGraph"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    x:DataType="local:ViewModel"
+    Icon="/Assets/avalonia-logo.ico"
+    mc:Ignorable="d">
+
+    <Window.DataContext>
+        <local:ViewModel />
+    </Window.DataContext>
+
+
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Right">
+            <Label HorizontalAlignment="Center">Tick time (seconds)</Label>
+            <TextBox
+                Name="tickBox"
+                MaxWidth="100"
+                Text="1" />
+            <Label HorizontalAlignment="Center">Tick's amount on chart</Label>
+            <TextBox
+                Name="tickMax"
+                MaxWidth="100"
+                Text="20" />
+
+            <Label HorizontalAlignment="Center">Currency</Label>
+            <TextBox
+                Name="cur1"
+                MaxWidth="100"
+                Text="btc" />
+
+            <Button
+                Name="conBut"
+                HorizontalAlignment="Center"
+                Click="btnClick">
+                Connect
+            </Button>
+            <TextBlock Name="txt" Text="Some text" />
+        </StackPanel>
+        <lvc:CartesianChart
+            Name="chart"
+            DockPanel.Dock="Left"
+            Series="{Binding Series}"
+            ZoomMode="Y">
+            <lvc:CartesianChart.XAxes>
+            </lvc:CartesianChart.XAxes>
+        </lvc:CartesianChart>
+    </DockPanel>
+
+
+
+
+
+
+
+</Window>

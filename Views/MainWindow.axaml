@@ -1,0 +1,30 @@
+<Window x:Class="SimpleGraph.Views.MainWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="using:SimpleGraph.ViewModels"
+        xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
+        xmlns:vm="using:SimpleGraph.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        
+        x:DataType="local:ViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="SimpleGraph">
+
+    <Window.DataContext>
+        <local:ViewModel />
+    </Window.DataContext>
+
+
+    <StackPanel>
+        <Button HorizontalAlignment="Center" Click="LoadData">LoadData</Button>
+        <TextBox Name="loadbtn" />
+        <lvc:CartesianChart Height="500" Width="1000" Series="{Binding Series}" />
+    </StackPanel>
+    
+
+    
+
+
+</Window>
