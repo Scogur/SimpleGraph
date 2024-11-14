@@ -26,7 +26,6 @@ public partial class GraphWindow : Window
 {
     public ObservableCollection<double> bid = [];
     public ObservableCollection<double> ask = [];
-    public ObservableCollection<string> time = [];
     ClientWebSocket client = new();
     DispatcherTimer timer = new();
     int ticksMax;
@@ -47,21 +46,32 @@ public partial class GraphWindow : Window
         ask.Clear();
         try
         {
+            dbg.Text = "Connecting started.";
             await client.ConnectAsync(uri, CancellationToken.None);
+            if (client.State == WebSocketState.Open){
+                conBut.IsEnabled = true;
+                dbg.Text = "Connected";
+            }
+
             string msg = "{\"method\": \"SUBSCRIBE\",\"params\": [\"bnb" + c1 + "@bookTicker\"],\"id\": 1}";
             byte[] query = Encoding.UTF8.GetBytes(msg);
-
+            dbg.Text = "Message sending.";
             await client.SendAsync(query, WebSocketMessageType.Text, true, CancellationToken.None);
+            dbg.Text = "Sended.";
             byte[] result = new byte[1024];
             WebSocketReceiveResult rs = await client.ReceiveAsync(result, CancellationToken.None);
-
+            dbg.Text = "First message recieved";
             timer = new()
             {
                 Interval = TimeSpan.FromSeconds(ticks)
             };
             timer.Tick += async (sender, e) =>
             {
-                rs = await client.ReceiveAsync(result, CancellationToken.None);
+                dbg.Text = "New tick.";
+                try
+                {
+                    rs = await client.ReceiveAsync(result, CancellationToken.None);
+                    dbg.Text = "Message recieved.";
                 string resText = Encoding.UTF8.GetString(result, 0, rs.Count);
                 MarketData md = JsonSerializer.Deserialize<MarketData>(resText)!;
 
@@ -73,26 +83,30 @@ public partial class GraphWindow : Window
                 {
                     bid.RemoveAt(0);
                 }
-                if (time.Count == ticksMax)
-                {
-                    time.RemoveAt(0);
-                }
-                time.Add(DateTime.Now.TimeOfDay.ToString());
                 bid.Add(double.Parse(md.b!));
+                dbg.Text = "New bid added";
                 ask.Add(double.Parse(md.a!));
+                dbg.Text = "New ask added";
+                }
+                catch (Exception ex)
+                {
+                    dbg.Text = ex.Message;
+                }
             };
             timer.Start();
         }
         catch (Exception ex)
         {
-            
+            dbg.Text = ex.Message;
         }
     }
 
     public void StopConnection()
     {
+        dbg.Text = "Connection closing";
         timer.Stop();
         client.CloseAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None).Wait();
+        dbg.Text = "Connection closed";
     }
 
 
@@ -104,17 +118,13 @@ public partial class GraphWindow : Window
             StopConnection();
             if (client.State == WebSocketState.Closed) {
                 conBut.Content = "Connect";
-
             }
         }
         else if (client.State == WebSocketState.Closed || client.State == WebSocketState.None)
         {
+            conBut.IsEnabled = false;
             ticksMax = int.Parse(tickMax.Text!);
             LoadData(int.Parse(tickBox.Text!), cur1.Text!);
-            
-            if (client.State == WebSocketState.Open) {
-                conBut.Content = "Disconnect";
-                }
         }
     }
 
@@ -123,8 +133,8 @@ public partial class GraphWindow : Window
         switch (e.Action)
         {
             case NotifyCollectionChangedAction.Add:
-
                 {
+                    dbg.Text = "Chart collection update";
                     chart.Series = new ObservableCollection<ISeries>
                     {
                         new LineSeries<double>
@@ -135,7 +145,7 @@ public partial class GraphWindow : Window
                             Stroke = new SolidColorPaint(SKColors.Fuchsia),
                             LineSmoothness = 0,
                             Name = "Ask",
-                    }.OnPointMeasured(point => point.Visual.Fill = new SolidColorPaint(SKColors.Fuchsia)),
+                    }.OnPointMeasured(point => point.Visual!.Fill = new SolidColorPaint(SKColors.Fuchsia)),
 
                         new LineSeries<double>
                         {
@@ -144,7 +154,7 @@ public partial class GraphWindow : Window
                             Stroke = new SolidColorPaint(SKColors.Yellow),
                             LineSmoothness = 0,
                             Name = "Bid",
-                        }.OnPointMeasured(point => point.Visual.Fill = new SolidColorPaint(SKColors.Yellow))
+                        }.OnPointMeasured(point => point.Visual!.Fill = new SolidColorPaint(SKColors.Yellow))
                     };
 
                 }
